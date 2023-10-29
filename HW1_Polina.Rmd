@@ -1,0 +1,435 @@
+---
+title: "Homework 1"
+output: html_document
+date: "2023-10-28"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1 Task
+
+In the 200m dash finals in the Olympics, 8 runners compete for 3 medals (order matters). In the 2012 Olympics, 3 of the 8 runners were from Jamaica and the other 5 were from different countries. The three medals were all won by Jamaica (Usain Bolt, Yohan Blake, and Warren Weir). Calculate analytically first two, simulate the last one (1,000 runs).
+
+
+### a.  Number of ways to distribute 3 medals across 8 runners
+```{r}
+ways_to_distribute_medals = factorial(8)/factorial(8-3)
+ways_to_distribute_medals
+```
+
+### b. Number of different ways to distribute 3 medals among 3 Jamaican runners
+```{r}
+ways_to_distribute_medals_jamaica = factorial(3)
+ways_to_distribute_medals_jamaica
+```
+### c. Probability that all 3 medals are won by Jamaica
+```{r}
+probability_all_medals_jamaica = ways_to_distribute_medals_jamaica / ways_to_distribute_medals
+probability_all_medals_jamaica
+```
+
+```{r}
+# Function to check if all medals are awarded to Jamaica
+isAllJamaica = function(order) {
+  all(order[1:3] %in% c("Jamaica1", "Jamaica2", "Jamaica3"))
+}
+
+# Number of simulations
+num_simulations = 1000000
+
+# Variable to count how many times all 3 medals go to Jamaica
+jamaica_medal_count <- 0
+
+# Names of the 8 runners
+runners = c("Jamaica1", "Jamaica2", "Jamaica3", "Runner4", "Runner5", "Runner6", "Runner7", "Runner8")
+
+# Simulation
+for (i in 1:num_simulations) {
+  # Shuffle the order of the runners randomly
+  shuffled_order = sample(runners)
+  
+  # If all 3 medals are awarded to Jamaica 
+  if (isAllJamaica(shuffled_order)) {
+    jamaica_medal_count = jamaica_medal_count + 1
+  }
+}
+
+# Probability
+probability = jamaica_medal_count / num_simulations
+cat("Simulated probability of 3 winners from Jamaica:", probability, "\n")
+
+``` 
+
+## 2 Task
+
+Imagine deck of poker cards – 13 different cards in 4 suits, hence 52 different cards. Obtain results analytically and via simulations of at least 1,000 runs for each of the following questions.
+
+### a. You sample 5 cards at random without replacement, what is a probability of having five cards of the same suit?
+
+Solution: 5/52 -  drawing of  5 cards
+13/42 - number of cards with the same suit
+Without replacement
+
+-> same suits: 4 * (13/52 * 12/51 * 11/50 * 10/49 * 9/48) = 0.001965
+
+```{r}
+set.seed(123)
+
+# Function to draw 5 cards of the same suit without replacement
+draw_hand_same_suit = function() {
+  deck = sample(1:52, 5)
+  return(deck)
+}
+
+# Function to check if all cards in the hand belong to the same suit
+same_suit = function(hand) {
+  suits = (hand - 1) %/% 13  # Determine the suit of each card (0-3)
+  return(all(suits == suits[1]))
+}
+
+# Number of simulations
+num_simulations = 100000
+
+# Number of cases with same suit
+count_same_suit = 0
+
+# Simulation
+for (i in 1:num_simulations) {
+  hand = draw_hand_same_suit()
+  if (same_suit(hand)) {
+    count_same_suit = count_same_suit + 1
+  }
+}
+
+# Calculation of probability
+simulated_probability = count_same_suit / num_simulations
+cat("Simulated Probability:", simulated_probability, "\n")
+
+
+```
+### b. You sample 2 cards at random without replacement, what is a probability of having two Kings?
+
+Solution: there are 4 kings in the first draw and 3 kings in the second draw.
+
+Without replacement
+
+4/52 * 3/51 = 1/221 = 0.0045
+
+```{r}
+# Function to draw 2 cards without replacement
+draw_2_cards = function() {
+  deck = sample(1:52, 2)
+  return(deck)
+}
+
+# Number of simulations
+num_simulations = 100000
+
+# Number of cases with 2 Kings
+count_2_kings = 0
+
+# Simulation
+for (i in 1:num_simulations) {
+  hand <- draw_2_cards()
+  kings_in_hand <- sum(hand %% 13 == 0)  # Kings have a reminder of 0 when divided by 13
+  if (kings_in_hand == 2) {
+    count_2_kings = count_2_kings + 1
+  }
+}
+
+# Calculation of probability
+simulated_probability = count_2_kings / num_simulations
+cat("Simulated Probability:", simulated_probability, "\n")
+
+
+```
+
+
+### c. What is a probability of having the second King in the second draw?
+
+Solution: Probability of first king is 4/52, probability of second king is 3/51
+
+4/52 * 3/51 = 0.004524887 
+
+```{r}
+# Function to draw 2 cards without replacement
+draw_2_cards = function() {
+  deck = sample(1:52, 2)
+  return(deck)
+}
+
+# Number of simulations
+num_simulations = 100000
+
+# Number of drawing second King
+count_second_king = 0
+
+# Simulation
+
+for (i in 1:num_simulations) {
+  hand = draw_2_cards()
+  if (hand[1] %% 13 == 0) {  # Check if the first card is a King
+    if (hand[2] %% 13 == 0) {  # Check if the second card is also a King
+      count_second_king <- count_second_king + 1
+    }
+  }
+}
+
+# Calculation of probability
+
+simulated_probability = count_second_king / num_simulations
+cat("Simulated Probability of having the second King on the second draw:", simulated_probability, "\n")
+```
+### d.You sample 5 cards at random without replacement, what is a probability of having exactly three different suits of one kind of a card.
+
+Solution:
+
+Choose one suit out of 4 suits in C(4, 1) ways.
+
+Choose 3 cards from the chosen suit in C(13, 3) ways.
+
+Choose 2 suits out of the remaining 3 suits in C(3, 2) ways.
+
+Choose 1 card from each of the 2 chosen suits in C(13, 1) * C(13, 1) ways.
+
+
+Probability = [C(4, 1) * C(13, 3) * C(3, 2) * (C(13, 1))^2] / C(52, 5)
+
+```{r}
+# Function to calculate combinations
+combinations = function(n, k) {
+  return(factorial(n) / (factorial(k) * factorial(n - k)))
+}
+
+# Calculation of the probability
+probability = (combinations(4, 1) * combinations(13, 3) * combinations(3, 1) * combinations(13, 1) * combinations(13, 1)) / combinations(52, 5)
+
+cat("Probability:", probability, "\n")
+
+```
+
+```{r}
+# Function to simulate and calculate the probability
+simulate_probability = function(num_simulations) {
+  favorable_outcomes = 0
+  total_simulations = num_simulations
+  
+  for (i in 1:num_simulations) {
+    deck <- rep(1:4, each = 13)  # Create a deck with 4 suits, 13 cards each
+    sample_cards = sample(deck, 5, replace = FALSE)  # Sample 5 cards without replacement
+    unique_suits = length(unique(sample_cards))
+    
+    # Check if there are exactly 3 different suits
+    if (unique_suits == 3) {
+      # Check if there is one suit with 3 cards
+      for (suit in 1:4) {
+        if (sum(sample_cards == suit) == 3) {
+          favorable_outcomes = favorable_outcomes + 1
+          break
+        }
+      }
+    }
+  }
+  
+  # Calculation of the probability
+  probability = favorable_outcomes / total_simulations
+  return(probability)
+}
+
+# Number of simulations
+num_simulations = 100000
+
+# Calculation of the probability
+result = simulate_probability(num_simulations)
+cat("Simulated Probability:", result, "\n")
+
+```
+
+## 3 Task
+
+Assuming having a standardized admissions test has a -0.25 point penalty for every incorrect answer and awards 1 point for a correct answer. The quantitative test consists of 8 multiple-choice questions each with 5 answer choices. Suppose a student chooses answers by guessing for all questions on the test.
+
+### a. Write down a probability function for total number of points obtained.
+
+Solution: since there are 2 outcomes P(X)=1 (correct) and P(Y)=1-P(X) for incorrect. We need to use PMF function to derive a formula for Binomial Distribution:
+
+P(X = x) = (n choose x) * (p^x) * ((1 - p)^(n - x))
+
+P(X = x) = (8 choose x) * (p^x) * ((1 - p)^(8 - x))
+
+### b. What is an expected value and standard deviation for total number of points?
+```{r}
+n = 8  # Total number of questions
+p_correct = 1/5  # Probability of guessing correctly
+
+# Calculate the expected value (mean)
+expected_value = n * (p_correct * 1 + (1 - p_correct) * (-0.25))
+
+# Calculate the variance using the formula
+variance = n * p_correct * (1 - p_correct)
+
+# Calculate the standard deviation
+standard_deviation = sqrt(variance)
+
+cat("Expected value  for total points:", expected_value, "\n")
+cat("Standard deviation for total points:", standard_deviation, "\n")
+```
+
+
+### c. Simulate 1,000 students taking this test, guessing at random. What is their mean number of points and sample standard deviation?
+```{r}
+# Set the parameters
+n_students = 1000
+n = 8
+p1 = 1/5
+penalty = -0.25
+
+# Create an empty vector to store the total scores
+total_scores = numeric(n_students)
+
+# Simulate the test for each student
+for (i in 1:n_students) {
+  correct_answers = dbinom(n, 1, p1)
+  incorrect_answers = 1 - correct_answers
+  total_score = sum(correct_answers) - (penalty * sum(incorrect_answers))
+  total_scores[i] = total_score
+}
+
+# Calculate the mean and sample standard deviation
+mean_score = mean(total_scores)
+std_deviation = sd(total_scores)
+
+cat("Mean number of points:", mean_score, "\n")
+cat("Sample standard deviation:", std_deviation, "\n")
+
+```
+##4 Task
+In a previous example, assume a student knows answers to 80 % of questions.
+### a. What is his/her expected number of points and standard deviation assuming he/she skips answering those questions he/she does not know an answer to (and takes automatically 0 points for these)?
+
+```{r}
+# Set the parameters
+n = 8  
+p_know = 0.8  # Probability that the student knows the answer
+
+# Calculate the expected number of points 
+expected_points = p_know * n
+
+cat("Expected number of points:", expected_points, "\n")
+```
+
+###b. What is his/her expected number of points and standard deviation assuming he/she answers randomly those questions he/she does not know an answer to?
+```{r}
+n = 8  
+p_know = 0.8  # Probability that the student knows the answer
+p_random = 1/5  # Probability of randomly guessing the answer
+points_random = p_random * -0.25  # Points for random guesses with penalty
+
+# Calculate the expected number of points
+expected_points = (p_know * n) + (p_random * points_random *  n )
+
+# Calculate the variance
+variance = (p_know * (1 - p_know) * n ) + (p_random * (1 - p_random) * n )
+
+# Calculate the standard deviation
+standard_deviation = sqrt(variance)
+
+cat("Expected number of points:", expected_points, "\n")
+cat("Standard deviation:", standard_deviation, "\n")
+
+```
+###c. Simulate 1,000 pairs of students. The first student from the pair knows answers to 80 % of question and the second knows answers to 90 % of questions. What is the probability, that the first student has higher number of total points than the second assuming they skip answering questions they do not know the answer to?
+
+```{r}
+n = 8  
+p_first_know = 0.8  # Probability that the first student knows the answer
+p_second_know = 0.9  # Probability that the second student knows the answer
+p_random = 1/5  # Probability of randomly guessing the answer
+points_random = p_random * -0.25  # Points for random guesses 
+num_simulations = 1000  # Number of pairs of students to simulate
+
+# Counter for the cases where the first student has more points
+count_higher_points = 0
+
+# Simulate pairs of students
+for (i in 1:num_simulations) {
+  # Simulate the first student's test
+  first_student_scores = rbinom(n, 1, p_first_know)
+  first_student_points = sum(first_student_scores * 1 + (1 - first_student_scores) * points_random)
+  
+  # Simulate the second student's test
+  second_student_scores = rbinom(n, 1, p_second_know)
+  second_student_points = sum(second_student_scores * 1 + (1 - second_student_scores) * points_random)
+  
+  # Check if the first student has more points
+  if (first_student_points > second_student_points) {
+    count_higher_points = count_higher_points + 1
+  }
+}
+
+# Calculate the probability that the first student has higher points
+probability_higher_points = count_higher_points / num_simulations
+
+cat("Probability that the first student has higher points:", probability_higher_points, "\n")
+```
+ 
+## Task 5
+
+### For a random variable with following probability density function calculate cumulative distribution function and quantile function. Calculate expected value, standard deviation, median and inter- quartile range. Plot probability density function and highlight expected value, median, range of E(X) ± S.D.(X) and inter-quartile range. Plot cumulative distribution function and quantile function and highlight quartiles (median included) in both.
+```{r}
+# Define the probability density function
+pdf <- function(x) {
+  ifelse(x >= 1 & x <= 3, 3 * x^2, 0)
+}
+
+# Define the cumulative distribution function (CDF)
+cdf <- Vectorize(function(x) {
+  ifelse(x < 1, 0, ifelse(x >= 1 & x <= 3, integrate(pdf, lower = 0, upper = x)$value, 1))
+}, vectorize.args = "x")
+
+# Calculate the expected value
+mean <- integrate(function(x) x * pdf(x), lower = 1, upper = 3)$value
+
+# Calculate the standard deviation
+sd <- sqrt(integrate(function(x) (x - mean)^2 * pdf(x), lower = 1, upper = 3)$value)
+
+# Calculate the median
+median <- uniroot(function(x) cdf(x) - 0.5, interval = c(1, 3))$root
+
+# Calculate the quartiles
+q1 <- uniroot(function(x) cdf(x) - 0.25, interval = c(1, 3))$root
+q3 <- uniroot(function(x) cdf(x) - 0.75, interval = c(1, 3))$root
+
+# Calculate the inter-quartile range
+iqr <- q3 - q1
+
+# Create a sequence of x values for plotting
+x_values <- seq(1, 3, by = 0.01)
+
+# Calculate PDF values for the x values
+pdf_values <- sapply(x_values, pdf)
+
+# Calculate CDF values for the x values
+cdf_values <- sapply(x_values, cdf)
+
+# Create a plot for the PDF
+plot(x_values, pdf_values, type = "l", xlab = "x", ylab = "PDF", main = "Probability Density Function")
+abline(v = mean, col = "red", lty = 2, lwd = 2)
+abline(v = median, col = "green", lty = 2, lwd = 2)
+abline(v = c(q1, q3), col = "blue", lty = 2, lwd = 2)
+
+# Create a plot for the CDF
+plot(x_values, cdf_values, type = "l", xlab = "x", ylab = "CDF", main = "Cumulative Distribution Function")
+abline(h = 0.5, col = "green", lty = 2)
+abline(h = 0.25, col = "blue", lty = 2)
+abline(h = 0.75, col = "blue", lty = 2)
+
+# Highlight the mean, median, and quartiles in the CDF plot
+points(mean, 0.5, col = "red", pch = 19)
+points(median, 0.5, col = "green", pch = 19)
+points(q1, 0.25, col = "blue", pch = 19)
+points(q3, 0.75, col = "blue", pch = 19)
+
+```
