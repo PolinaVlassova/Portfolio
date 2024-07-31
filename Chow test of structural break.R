@@ -1,5 +1,4 @@
-#  HW 2, based on:
-#
+
 #  Greene, Econometric analysis, 7th ed., Example 6.9, p. 212
 #  "Structural break in the gasoline market"
 #
