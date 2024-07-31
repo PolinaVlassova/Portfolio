@@ -1,0 +1,160 @@
+---
+title: "HW2_Polina"
+output: html_document
+date: "2023-12-10"
+---
+## TASK 1
+
+1.) Out of the two following sequences, which one is more likely to be generated from a random fair coin toss (H or T with equal probability) and which one is more likely to be fabricated? Explain your reasoning.
+
+Following the logic that probability of H and T should be uniformly distributed with P=0.5 on each trial, let's identify probability of outcomes in each sequence. If probability signigicantly deviates from 0.5, it will mean that sequence is fabricated.
+```{r}
+sequence1 <- c("T", "T", "T", "H", "T", "H", "H", "T", "H", "T", "H", "T", "H", "T", "H", "T", "T", "T", "H", "T", "T", "T", "T", "H", "H", "T", "T", "H", "H", "T", "H", "H", "H", "T", "H", "H", "T", "H", "H", "H", "H", "T", "H", "T", "H", "T", "H", "T", "T", "H", "H", "H", "H", "T", "H", "H", "H", "T", "H", "T", "T", "T", "T", "H", "T", "T", "H", "H", "H", "T", "T", "T", "T", "T", "T", "H", "H", "H", "T", "T", "H", "H", "H", "H", "H", "H", "H", "H", "T", "H", "H", "H", "H", "T", "H", "H", "T", "T", "H", "H")
+
+sequence2 <- c("H", "H", "H", "T", "H", "T", "T", "H", "T", "H", "T", "H", "T", "H", "T", "H", "H", "H", "T", "H", "T", "T", "T", "H", "H", "T", "T", "T", "T", "H", "H", "H", "H", "T", "T", "T", "H", "H", "T", "T", "T", "H", "T", "H", "T", "H", "T", "H", "H", "T", "T", "T", "T", "H", "T", "T", "T", "H", "T", "H", "H", "H", "H", "T", "H", "H", "T", "T", "T", "H", "H", "H", "H", "T", "H", "T", "T", "T", "H", "H", "T", "H", "H", "T", "T", "H", "H", "T", "T", "H", "T", "T", "T", "H", "T", "T", "H", "T", "H", "H")
+
+count_H_sequence1 <- sum(sequence1 == "H")
+count_T_sequence1 <- sum(sequence1 == "T")
+
+count_H_sequence2 <- sum(sequence2 == "H")
+count_T_sequence2 <- sum(sequence2 == "T")
+
+prob_H_sequence1 <- count_H_sequence1 / length(sequence1)
+prob_T_sequence1 <- count_T_sequence1 / length(sequence1)
+
+prob_H_sequence2 <- count_H_sequence2 / length(sequence2)
+prob_T_sequence2 <- count_T_sequence2 / length(sequence2)
+
+cat("Probability of H in Sequence 1:", prob_H_sequence1)
+cat("Probability of T in Sequence 1:", prob_T_sequence1)
+cat("Probability of H in Sequence 2:", prob_H_sequence2)
+cat("Probability of T in Sequence 2:", prob_T_sequence2)
+
+```
+In Sequence 1, the higher probability of H and lower probability of T result in deviation from the expected 0.5 probability for a fair coin toss. This might be an indication that the sequence is more likely fabricated.
+
+In Sequence 2, the probabilities are closer to 0.5 for both H and T, which is in line with what is expected in a fair coin toss. Hence, Sequence 2 less likely to be fabricated based on the calculations.
+
+## TASK 2
+2.) Generate 1,000 numbers from continuous uniform distribution with bounds 0 and 1. Choose a value of parameter π from the interval (0; 1) (use at least three digits). From the 1,000 generated random numbers create Bernoulli distribution with value 1 if number is lesser than π and 0 if it is greater. Next calculate ratio of 1s among 1, 2, 3... 1 000 random numbers (so you have 1 000 such a ratios). Create chart showing convergence of the ratios to π with rising n. Next calculate absolute value of differences between the ratios and π and again create chart.
+```{r}
+
+set.seed(123)
+
+# 1,000 numbers from continuous uniform distribution
+n <- 1000
+uniform_numbers <- runif(n, min = 0, max = 1)
+
+# Bernoulli distribution
+pi_value <- 0.523 
+bernoulli_distribution <- as.integer(uniform_numbers < pi_value)
+
+# Ratios of 1s with rising n
+ratios <- cumsum(bernoulli_distribution) / seq_along(bernoulli_distribution)
+
+# Chart, which shows convergence of the ratios to π with rising n
+plot(1:n, ratios, type = "l", col = "blue", xlab = "n", ylab = "Ratio", main = "Convergence of Ratios to π")
+abline(h = pi_value, col = "red", lty = 2)
+legend("bottomright", legend = c("Ratios", "π"), col = c("blue", "red"), lty = 1:2)
+
+# Absolute value of differences between the ratios and π
+differences <- abs(ratios - pi_value)
+
+# Chart, which shows absolute differences
+plot(1:n, differences, type = "l", col = "orange", xlab = "n", ylab = "Absolute Difference", main = "Absolute Differences from π")
+```
+
+
+
+## TASK 3
+3.) Generate 1,000 numbers from normal distribution (select the expected value by your own, use 3 digits; use variance equal to 0.1). Then calculate mean from first, first two, first three..., thousand of these random numbers (so you have 1,000 such means). Create a chart showing the sequence of means, which should show convergence of them to the selected expected value. Next calculate absolute value of differences between these means and selected expected value and again create a chart.
+```{r}
+
+set.seed(123)
+
+# 1,000 numbers from normal distribution
+n <- 1000
+expected_value <- 1.678  
+variance <- 0.1
+normal_numbers <- rnorm(n, mean = expected_value, sd = sqrt(variance))
+
+# Running means
+running_means <- cumsum(normal_numbers) / seq_along(normal_numbers)
+
+# Sequence of means
+plot(1:n, running_means, type = "l", col = "blue", xlab = "n", ylab = "Mean", main = "Sequence of Means")
+
+# Absolute differences between means and selected expected value
+differences <- abs(running_means - expected_value)
+plot(1:n, differences, type = "l", col = "orange", xlab = "n", ylab = "Absolute Difference", main = "Absolute Differences from Expected Value")
+
+
+```
+
+## TASK 4
+4.) Generate subsequently 30, 100, 500 and 1,000 numbers from log-normal distribution (choose your own value of μ with at least three digits and use σ = 0.1). Plot four histograms of these generated distributions together with originating density. Then generate 4x1,000 of these distributions and for each of them calculate sample mean (hence you will have 1,000 sample means from distributions of sample size 30, another 1,000 for sample size 100 and so on). Plot histogram of these sample means (four plots – for four different sample sizes). What do you observe?
+
+```{r}
+
+set.seed(123)
+
+# Expected value and variance
+pi_value <- 0.678
+var <- 0.34
+
+# Log-normal distributions
+log_normal_dist_30_nums <- rlnorm(30, meanlog = pi_value, sdlog = sqrt(var))
+log_normal_dist_100_nums <- rlnorm(100, meanlog = pi_value, sdlog = sqrt(var))
+log_normal_dist_500_nums <- rlnorm(500, meanlog = pi_value, sdlog = sqrt(var))
+log_normal_dist_1000_nums <- rlnorm(1000, meanlog = pi_value, sdlog = sqrt(var))
+
+# Plots, which show histograms and originating density
+par(mfrow = c(2, 2))
+hist(log_normal_dist_30_nums, prob = TRUE, main = "Log-normal Distribution (30)", col = "aquamarine2", xlab = "Value")
+lines(density(log_normal_dist_30_nums), col = "orange")
+
+hist(log_normal_dist_100_nums, prob = TRUE, main = "Log-normal Distribution (100)", col = "aquamarine2", xlab = "Value")
+lines(density(log_normal_dist_100_nums), col = "orange")
+
+hist(log_normal_dist_500_nums, prob = TRUE, main = "Log-normal Distribution (500)", col = "aquamarine2", xlab = "Value")
+lines(density(log_normal_dist_500_nums), col = "orange")
+
+
+hist(log_normal_dist_1000_nums, prob = TRUE, main = "Log-normal Distribution (1000)", col = "aquamarine2", xlab = "Value")
+lines(density(log_normal_dist_1000_nums), col = "orange")
+
+par(mfrow = c(1, 1))
+
+cat("Orange line - Lognormal Density")
+
+# Generate 4 sets of 1000 log-normal distributions for each sample size
+thousand_log_normal_dist_30 <- matrix(rlnorm(1000 * 30, meanlog = pi_value, sdlog = sqrt(var)), ncol = 30)
+thousand_log_normal_dist_100 <- matrix(rlnorm(1000 * 100, meanlog = pi_value, sdlog = sqrt(var)), ncol = 100)
+thousand_log_normal_dist_500 <- matrix(rlnorm(1000 * 500, meanlog = pi_value, sdlog = sqrt(var)), ncol = 500)
+thousand_log_normal_dist_1000 <- matrix(rlnorm(1000 * 1000, meanlog = pi_value, sdlog = sqrt(var)), ncol = 1000)
+
+# Means for each set
+mean_30 <- rowMeans(thousand_log_normal_dist_30)
+mean_100 <- rowMeans(thousand_log_normal_dist_100)
+mean_500 <- rowMeans(thousand_log_normal_dist_500)
+mean_1000 <- rowMeans(thousand_log_normal_dist_1000)
+
+# Plots, which show histograms of sample means
+par(mfrow = c(2, 2))
+hist(mean_30, prob = TRUE, main = "Sample Means (30)", col = "aquamarine2", xlab = "Sample Mean")
+lines(density(mean_30), col = "orange")
+
+hist(mean_100, prob = TRUE, main = "Sample Means (100)", col = "aquamarine2", xlab = "Sample Mean")
+lines(density(mean_100), col = "orange")
+
+hist(mean_500, prob = TRUE, main = "Sample Means (500)", col = "aquamarine2", xlab = "Sample Mean")
+lines(density(mean_500), col = "orange")
+
+hist(mean_1000, prob = TRUE, main = "Sample Means (1000)", col = "aquamarine2", xlab = "Sample Mean")
+lines(density(mean_1000), col = "orange")
+
+
+```
+
+
+In a given example we could observe outcome of Central Limit Theorem, which states that regardless of origination of the distribution, sampling distribution of the mean will be normal.
