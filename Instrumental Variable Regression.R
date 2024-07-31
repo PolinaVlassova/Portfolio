@@ -1,5 +1,4 @@
-# Home assignment - IVR example.
-#
+
 ## Please follow instructions below:
 #
 library(AER)
