@@ -58,5 +58,4 @@ labels = k_means.labels_
 print(labels)
 
 # Calculate and print the accuracy score
-# Note: This accuracy score is not a typical measure for clustering but can give a rough idea of how the clusters align with the actual classes
 print("Accuracy Score:", accuracy_score(labels, y))
